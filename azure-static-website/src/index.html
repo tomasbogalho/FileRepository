@@ -8,9 +8,10 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            text-align: center;
         }
         h1 {
-            text-align: center;
+            color: #0078d4;
         }
         table {
             width: 80%;
@@ -27,6 +28,20 @@
             background-color: #0078d4;
             color: white;
         }
+        .download-btn {
+            background-color: #0078d4;
+            color: white;
+            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            border: none;
+            cursor: pointer;
+        }
+        .download-btn:hover {
+            background-color: #005ea6;
+        }
     </style>
 </head>
 <body>
@@ -35,16 +50,20 @@
         <thead>
             <tr>
                 <th>Name</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody id="file-table-body"></tbody>
     </table>
 
     <script>
+        const storageAccountName = "<storage-account-name>";
+        const fileShareName = "<file-share-name>";
+        const sasToken = "<sas-token>";
+
         async function fetchFiles() {
             try {
-                const sasToken = "<SAS-Token>";
-                const url = `https://<storage-account-name>.file.core.windows.net/<fileshare-name>?restype=directory&comp=list&${sasToken}`;
+                const url = `https://${storageAccountName}.file.core.windows.net/${fileShareName}?restype=directory&comp=list&${sasToken}`;
 
                 const response = await fetch(url);
                 if (!response.ok) {
@@ -62,14 +81,44 @@
 
                 for (let i = 0; i < files.length; i++) {
                     const fileName = files[i].getElementsByTagName("Name")[0].textContent;
+                    const fileUrl = `https://${storageAccountName}.file.core.windows.net/${fileShareName}/${fileName}?${sasToken}`;
+
                     const row = document.createElement('tr');
                     const nameCell = document.createElement('td');
+                    const actionCell = document.createElement('td');
+
                     nameCell.textContent = fileName;
+
+                    const downloadButton = document.createElement('button');
+                    downloadButton.className = 'download-btn';
+                    downloadButton.textContent = '⬇️ Download';
+                    downloadButton.onclick = () => downloadFile(fileUrl, fileName);
+
+                    actionCell.appendChild(downloadButton);
                     row.appendChild(nameCell);
+                    row.appendChild(actionCell);
                     tableBody.appendChild(row);
                 }
             } catch (error) {
                 console.error('Error fetching files:', error);
+            }
+        }
+
+        async function downloadFile(fileUrl, fileName) {
+            try {
+                const response = await fetch(fileUrl);
+                if (!response.ok) throw new Error(`Failed to fetch ${fileName}`);
+
+                const blob = await response.blob();
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+            } catch (error) {
+                console.error("Download error:", error);
             }
         }
 
