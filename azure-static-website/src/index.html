@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure File Share</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #0078d4;
+        }
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        th {
+            background-color: #0078d4;
+            color: white;
+        }
+        a, button {
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 5px;
+            display: inline-block;
+            border: none;
+            cursor: pointer;
+        }
+        .see-btn {
+            background-color: #28a745;
+        }
+        .see-btn:hover {
+            background-color: #218838;
+        }
+        .download-btn {
+            background-color: #0078d4;
+        }
+        .download-btn:hover {
+            background-color: #005ea6;
+        }
+    </style>
+</head>
+<body>
+    <h1>Azure File Share Directory</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="file-table-body"></tbody>
+    </table>
+
+    <script>
+        async function fetchFiles() {
+            try {
+                const sasToken = "<SAS-Token>";
+                const url = `https://<storage-account-name>.file.core.windows.net/<fileshare-name>?restype=directory&comp=list&${sasToken}`;
+
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const text = await response.text();
+                console.log(text); // Debugging
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(text, "text/xml");
+                const files = xmlDoc.getElementsByTagName("File");
+
+                const tableBody = document.getElementById('file-table-body');
+                tableBody.innerHTML = ""; // Clear previous list
+
+                for (let i = 0; i < files.length; i++) {
+                    const fileName = files[i].getElementsByTagName("Name")[0].textContent;
+                    const fileUrl = `https://<storage-account-name>.file.core.windows.net/<fileshare-name>/${fileName}?${sasToken}`;
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${fileName}</td>
+                        <td><a href="${fileUrl}" target="_blank" class="see-btn">🔍 See</a></td>
+                        <td><button class="download-btn" onclick="downloadFile('${fileUrl}', '${fileName}')">⬇️ Download</button></td>
+                    `;
+                    tableBody.appendChild(row);
+                }
+            } catch (error) {
+                console.error('Error fetching files:', error);
+            }
+        }
+
+        async function downloadFile(fileUrl, fileName) {
+            try {
+                const response = await fetch(fileUrl);
+                if (!response.ok) throw new Error(`Failed to fetch ${fileName}`);
+
+                const blob = await response.blob();
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+            } catch (error) {
+                console.error("Download error:", error);
+            }
+        }
+
+        fetchFiles();
+    </script>
+</body>
+</html>
