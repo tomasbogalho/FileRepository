@@ -1,6 +1,6 @@
 # FileRepository
 
-This project is an Azure Static Website hosted in Azure Blob Storage that displays a directory of files from an Azure File Share. Users can view and download files directly from the web interface.
+This project is an Azure Static Website hosted in Azure Blob Storage that displays a directory of files from an Azure File Share. Users can view the file names directly from the web interface.
 
 ## Table of Contents
 
@@ -16,7 +16,6 @@ This project is an Azure Static Website hosted in Azure Blob Storage that displa
 ## Features
 
 - List files from an Azure File Share
-- View and download files
 - Responsive design
 
 ## Prerequisites
@@ -28,7 +27,7 @@ This project is an Azure Static Website hosted in Azure Blob Storage that displa
 1. Clone the repository:
 
     ```sh
-    git clone https://github.com/yourusername/FileRepository.git
+    git clone https://github.com/tomasbogalho/FileRepository.git
     cd FileRepository
     ```
 
@@ -68,23 +67,18 @@ This project is an Azure Static Website hosted in Azure Blob Storage that displa
     - Navigate to your storage account in the Azure portal.
     - Go to `Static website` under `Settings`.
     - Enable static website hosting.
-    - Set the `Index document name` to `index.html`.
-    - Upload your website files (e.g., `index.html`, `styles.css`, `app.js`) to the `$web` container.
+    - Set the `Index document name` to [index.html](http://_vscodecontentref_/2).
+    - Upload your website files (e.g., [index.html](http://_vscodecontentref_/3), `styles.css`, `app.js`) to the `$web` container.
 
-2. **Update `index.html`**:
+2. **Update [index.html](http://_vscodecontentref_/4)**:
 
-    - Replace placeholders in the `index.html` file with your actual Azure Storage account name, file share name, and SAS token.
+    - Replace `<storage-account-name>`, `<file-share-name>`, and `<SAS-Token>` in the [index.html](http://_vscodecontentref_/5) file with your actual Azure Storage account name, file share name, and SAS token.
 
 ## Usage
 
 1. **Access the Website**:
 
     - Navigate to the URL of your deployed static website to see the file share directory listing.
-
-2. **View and Download Files**:
-
-    - Click on the "See" button to view a file.
-    - Click on the "Download" button to download a file.
 
 ## Contributing
 
